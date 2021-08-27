@@ -82,6 +82,8 @@ def message(data):
                 names = list(map(lambda x: x[:x.find('(')], header.split(',')[3:]))
 
                 max_time = None
+                count = 0
+
                 for line in data:
                     if not line:
                         continue
@@ -101,6 +103,8 @@ def message(data):
                     for i, value in enumerate(values):
                         packet.append([names[i], value])
 
+                    count += 1
+
                     medsenger_api.add_records(contract.id, packet, record_time=time.timestamp())
 
                 if max_time:
@@ -108,12 +112,12 @@ def message(data):
                     db.session.commit()
 
                     medsenger_api.send_message(contract.id,
-                                               'Ага, похоже Вы прислали файл с данными спирометра. Спасибо, новые измерения добавлены в Вашу медицинскую карту.',
-                                               only_patient=True)
+                                               'Ага, похоже Вы прислали файл с данными спирометра. Спасибо, новые измерения ({}) добавлены в Вашу медицинскую карту.'.format(count),
+                                               only_patient=True, forward_to_doctor=False)
                 else:
                     medsenger_api.send_message(contract.id,
                                                'Вы прислали файл с данными спирометра, но все измерения в нем уже были добавлены в Вашу медицинскую карту. Как будут новые - присылайте снова!',
-                                               only_patient=True)
+                                               only_patient=True, forward_to_doctor=False)
     return "ok"
 
 
