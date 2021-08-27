@@ -93,8 +93,7 @@ def message(data):
                     n, date, time, *values = line.split(',')
                     time = datetime.strptime(date + " " + time, '%Y/%m/%d %H:%M:%S')
 
-                    print(time, time < contract.last_import)
-                    if contract.last_import and time < contract.last_import:
+                    if contract.last_import and time <= contract.last_import:
                         continue
 
                     if not max_time or max_time < time:
