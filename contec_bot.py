@@ -35,6 +35,10 @@ def init(data):
     else:
         contract.active = True
 
+    medsenger_api.send_message(contract.id,
+                               'К каналу консультирования подключен интеллектуальный агент для спирометров Contec. Просто отправьте в чат CSV файл из мобильного приложения (через меню "поделиться"), и мы автоматически положим все измерения в вашу медицинскую карту.',
+                               only_patient=True)
+
     db.session.commit()
     return "ok"
 
@@ -103,8 +107,13 @@ def message(data):
                     contract.last_import = max_time
                     db.session.commit()
 
-
-
+                    medsenger_api.send_message(contract.id,
+                                               'Ага, похоже Вы прислали файл с данными спирометра. Спасибо, новые измерения добавлены в Вашу медицинскую карту.',
+                                               only_patient=True)
+                else:
+                    medsenger_api.send_message(contract.id,
+                                               'Вы прислали файл с данными спирометра, но все измерения в нем уже были добавлены в Вашу медицинскую карту. Как будут новые - присылайте снова!',
+                                               only_patient=True)
     return "ok"
 
 
