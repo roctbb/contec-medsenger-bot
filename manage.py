@@ -13,7 +13,3 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_string
 db.init_app(app)
 
 migrate = Migrate(app, db)
-
-
-if __name__ == '__main__':
-    manager.run()
