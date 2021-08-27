@@ -1,3 +1,5 @@
+import base64
+
 from flask import jsonify
 from manage import *
 from medsenger_api import AgentApiClient
@@ -31,7 +33,7 @@ def init(data):
     if not contract:
         db.session.add(Contract(id=data.get('contract_id')))
     else:
-        contract.active=True
+        contract.active = True
 
     db.session.commit()
     return "ok"
@@ -42,7 +44,7 @@ def init(data):
 def remove(data):
     c = Contract.query.filter_by(id=data.get('contract_id')).first()
     if c:
-        contract.active=False
+        c.active = False
         db.session.commit()
     return "ok"
 
@@ -57,19 +59,53 @@ def get_settings(args, form):
 @app.route('/message', methods=['POST'])
 @verify_json
 def message(data):
-
     attachments = data.get('message', {}).get('attachments', [])
+    contract = Contract.query.filter_by(id=data.get('contract_id')).first()
 
-    for attachment in attachments:
-        if ".csv" in attachment.get('name'):
-            pass
+    if not contract or not contract.active:
+        abort(404)
 
+    for attachment_description in attachments:
+        if ".csv" in attachment_description.get('name'):
+            attachments = medsenger_api.get_attachment(attachment_description['id'])
+            text = base64.b64decode(attachments['base64']).decode('utf-8')
+
+            if "number,date,time,FVC(L),FEV1(L)" in text:
+                lines = text.split('\n')
+
+                header, data = lines[0], lines[1:]
+
+                names = list(map(lambda x: x[:x.find('(')], header.split(',')[3:]))
+
+                max_time = None
+                for line in data:
+                    if not line:
+                        continue
+
+                    packet = []
+
+                    n, date, time, *values = line.split(',')
+                    time = datetime.strptime(date + " " + time, '%Y/%m/%d %H:%M:%S')
+
+                    if contract.last_import and time < contract.last_import:
+                        continue
+
+                    if not max_time or max_time < time:
+                        max_time = time
+
+                    values = map(float, values)
+                    for i, value in enumerate(values):
+                        packet.append([names[i], value])
+
+                    medsenger_api.add_records(contract.id, packet, record_time=time.timestamp())
+
+                if max_time:
+                    contract.last_import = max_time
+                    db.session.commit()
 
 
 
     return "ok"
-
-
 
 
 with app.app_context():
