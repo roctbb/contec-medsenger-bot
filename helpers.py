@@ -26,7 +26,7 @@ def log(error, terminating=False):
 # decorators
 def verify_args(func):
     def wrapper(*args, **kargs):
-        if not request.args.get('contract_id'):
+        if not request.args.get('contract_id') and "status" not in request.url:
             abort(422)
         if request.args.get('api_key') != API_KEY:
             abort(401)
