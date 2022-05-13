@@ -39,6 +39,9 @@ def init(data):
                                'К каналу консультирования подключен интеллектуальный агент для спирометров Contec. Просто отправьте в чат CSV файл из мобильного приложения (через меню "поделиться"), и мы автоматически положим все измерения в вашу медицинскую карту.',
                                only_patient=True)
 
+    medsenger_api.add_record(data.get('contract_id'), 'doctor_action',
+                             'Подключен прибор "Contec".')
+
     db.session.commit()
     return "ok"
 
@@ -50,6 +53,8 @@ def remove(data):
     if c:
         c.active = False
         db.session.commit()
+    medsenger_api.add_record(data.get('contract_id'), 'doctor_action',
+                             'Отключен прибор "Contec".')
     return "ok"
 
 
