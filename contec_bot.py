@@ -163,7 +163,7 @@ def receive_ecg():
 
 @app.route('/.well-known/apple-app-site-association')
 def apple_deeplink():
-    return jsonify({"applinks": {"apps": [], "details": [{"appID": "CRF22TKXX5.com.medsenger.spirometer", "paths": ["*"]}]}})
+    return jsonify({"applinks":{"apps":[],"details":[{"appID":"CRF22TKXX5.ru.medsenger.contec","paths":["*"]}]}})
 
 
 with app.app_context():
