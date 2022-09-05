@@ -125,6 +125,39 @@ def message(data):
                                                only_patient=True, forward_to_doctor=False)
     return "ok"
 
+@app.route('/api/receive', methods=['POST'])
+def receive_ecg():
+    data = request.json
+
+    if not data:
+        abort(422, "No json")
+
+    contract_id = data.get('contract_id')
+
+    if not contract_id:
+        abort(422, "No contract_id")
+
+    agent_token = data.get('agent_token')
+    if not agent_token:
+        abort(422, "No agent_token")
+
+    timestamp = int(data.get('timestamp'))
+    if not agent_token:
+        abort(422, "No timestamp")
+
+    answer = medsenger_api.get_agent_token(contract_id)
+
+    if not answer or answer.get('agent_token') != agent_token:
+        abort(422, "Incorrect token")
+
+    if 'measurement' in data:
+        package = []
+        for category_name, value in data['measurement'].items():
+            package.append((category_name, value))
+        medsenger_api.add_records(contract_id, package, timestamp)
+        return "ok"
+    else:
+        abort(422, "No file")
 
 with app.app_context():
     db.create_all()
