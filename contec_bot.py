@@ -125,6 +125,7 @@ def message(data):
                                                only_patient=True, forward_to_doctor=False)
     return "ok"
 
+
 @app.route('/api/receive', methods=['POST'])
 def receive_ecg():
     data = request.json
@@ -158,6 +159,12 @@ def receive_ecg():
         return "ok"
     else:
         abort(422, "No file")
+
+
+@app.route('/.well-known/apple-app-site-association')
+def apple_deeplink():
+    return jsonify({"applinks": {"apps": [], "details": [{"appID": "CRF22TKXX5.com.medsenger.spirometer", "paths": ["*"]}]}})
+
 
 with app.app_context():
     db.create_all()
