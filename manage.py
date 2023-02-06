@@ -1,6 +1,5 @@
 from flask import Flask
 from models import db
-from flask_script import Manager
 from flask_migrate import Migrate
 
 from config import *
