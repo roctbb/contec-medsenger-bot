@@ -1,1 +1,1 @@
-supervisorctl restart agents-contec
+touch /etc/uwsgi/apps/contec.ini
