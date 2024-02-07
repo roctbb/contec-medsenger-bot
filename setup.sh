@@ -1,5 +1,5 @@
 sudo pip3 install -r requirements.txt
-sudo cp contec.ini /etc/nginx/apps/
+sudo cp contec.ini /etc/uwsgi/apps/
 sudo cp agents_contec.conf /etc/supervisor/conf.d/
 sudo cp agents_contec_nginx.conf /etc/nginx/sites-enabled/
 sudo supervisorctl update
